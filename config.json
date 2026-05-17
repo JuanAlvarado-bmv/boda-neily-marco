@@ -1,0 +1,35 @@
+{
+  "coupleName": "Neily & Marco",
+  "weddingDate": "2026-05-23T19:00:00",
+  "rsvpDeadline": "20 de mayo",
+
+  "whatsapp": "523313324735",
+  "whatsappMessage": "¡Hola! Confirmo mi asistencia a su boda el 23 de mayo 🎊",
+
+  "venue": "Parroquia Ntra. Sra. del Rosario",
+  "venueAddress": "Pino Suárez 47, Tlaquepaque, Jalisco",
+  "mapsUrl": "https://maps.google.com/?q=Parroquia+Nuestra+Señora+del+Rosario,+Pino+Suárez+47,+Tlaquepaque,+Jalisco",
+
+  "scriptUrl": "https://script.google.com/macros/s/AKfycbycEUUzYt2it7DLkRVbCwXdzxDuMUDhA943cYxzGDQRQF3gg6FsRz39Od-CEQtq2PpW/exec",
+  "adminPass": "Neily2026",
+  "driveFolder": "1Mm-pF19ISHkzf_K_WGyUXYwJ3Me758vU",
+
+  "itinerary": [
+    { "time": "6:30 PM", "title": "Bienvenida a los invitados", "desc": "Parroquia Ntra. Sra. del Rosario" },
+    { "time": "7:00 PM", "title": "Ceremonia religiosa",        "desc": "Misa de matrimonio" },
+    { "time": "8:30 PM", "title": "Recepción y cóctel",         "desc": "Brindis de bienvenida con los novios" },
+    { "time": "9:30 PM", "title": "Cena y celebración",         "desc": "Baile, música y festejo con familia y amigos" }
+  ],
+
+  "bibleVerse": "\"Donde estés, estaré yo. Tu pueblo será mi pueblo, y tu Dios será mi Dios.\" — Rut 1:16",
+  "guestbookVerse": "\"El amor es paciente, es bondadoso… todo lo soporta, todo lo espera.\" — 1 Cor 13",
+
+  "dressCode": [
+    { "color": "#aecbd6", "name": "Azul cielo" },
+    { "color": "#7aafc2", "name": "Azul acero" },
+    { "color": "#b0bec5", "name": "Gris plata" },
+    { "color": "#8a9ba3", "name": "Gris medio" },
+    { "color": "#cfd8dc", "name": "Gris suave" }
+  ],
+  "dressNote": "Formal. Por favor evita el blanco y el negro."
+}
