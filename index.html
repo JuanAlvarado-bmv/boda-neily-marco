@@ -779,83 +779,160 @@ async function submitWish(){
 }
 
 // ── ALBUM ─────────────────────────────────────────────────
-let pendingFiles=[];
-function previewFiles(input){
-  pendingFiles=Array.from(input.files);
-  const preview=document.getElementById('album-preview');preview.innerHTML='';
-  pendingFiles.forEach((f,i)=>{const reader=new FileReader();reader.onload=e=>{const div=document.createElement('div');div.className='album-preview-item';div.innerHTML=`<img src="${e.target.result}" alt=""><button class="album-preview-remove" onclick="removeFile(${i})">✕</button>`;preview.appendChild(div);};reader.readAsDataURL(f);});
+// Las imágenes de Drive no se pueden mostrar directamente en <img> por CORS.
+// Solución: el Apps Script actúa como proxy — devuelve la imagen en base64
+// y la mostramos como data URI.
+
+let pendingFiles = [];
+const localPhotos = [];
+
+function previewFiles(input) {
+  pendingFiles = Array.from(input.files);
+  const preview = document.getElementById('album-preview');
+  preview.innerHTML = '';
+  pendingFiles.forEach((f, i) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'album-preview-item';
+      div.innerHTML = `<img src="${e.target.result}" alt=""><button class="album-preview-remove" onclick="removeFile(${i})">✕</button>`;
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(f);
+  });
 }
-function removeFile(i){pendingFiles.splice(i,1);const dt=new DataTransfer();pendingFiles.forEach(f=>dt.items.add(f));document.getElementById('album-files').files=dt.files;previewFiles({files:pendingFiles});}
-function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
-async function submitAlbum(){
-  const name=document.getElementById('album-name').value.trim();
-  if(!name){toast('Por favor escribe tu nombre ✏️');return;}
-  if(!pendingFiles.length){toast('Selecciona al menos una foto 📸');return;}
-  const btn=document.getElementById('album-submit');btn.disabled=true;
-  const progress=document.getElementById('album-progress'),bar=document.getElementById('album-progress-bar'),status=document.getElementById('album-status');
-  progress.style.display='block';
-  const date=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long'});
-  let uploaded=0, failed=0;
 
-  for(let i=0;i<pendingFiles.length;i++){
-    const f=pendingFiles[i];
-    status.textContent=`Subiendo foto ${i+1} de ${pendingFiles.length}…`;
-    bar.style.width=`${Math.round((i/pendingFiles.length)*100)}%`;
+function removeFile(i) {
+  pendingFiles.splice(i, 1);
+  const dt = new DataTransfer();
+  pendingFiles.forEach(f => dt.items.add(f));
+  document.getElementById('album-files').files = dt.files;
+  previewFiles({ files: pendingFiles });
+}
 
-    if(configured()){
-      try{
-        const b64=await toBase64(f);
-        const r=await api({action:'uploadPhoto',name,date,filename:f.name,mimeType:f.type,data:b64,folderId:CFG.driveFolder});
-        if(r && r.success){
-          uploaded++;
-        } else {
-          failed++;
-          console.error('Error subiendo',f.name, r?.error||'sin respuesta');
-        }
-      }catch(e){
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function submitAlbum() {
+  const name = document.getElementById('album-name').value.trim();
+  if (!name)              { toast('Por favor escribe tu nombre ✏️'); return; }
+  if (!pendingFiles.length){ toast('Selecciona al menos una foto 📸'); return; }
+
+  const btn    = document.getElementById('album-submit');
+  const progress = document.getElementById('album-progress');
+  const bar    = document.getElementById('album-progress-bar');
+  const status = document.getElementById('album-status');
+
+  btn.disabled = true;
+  progress.style.display = 'block';
+  status.style.color = '';
+
+  const date = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long' });
+  let uploaded = 0, failed = 0;
+
+  for (let i = 0; i < pendingFiles.length; i++) {
+    const f = pendingFiles[i];
+    status.textContent = `Subiendo foto ${i+1} de ${pendingFiles.length}…`;
+    bar.style.width = `${Math.round((i / pendingFiles.length) * 100)}%`;
+
+    if (configured()) {
+      const b64 = await toBase64(f);
+      const res = await api({
+        action: 'uploadPhoto',
+        name, date,
+        filename: f.name,
+        mimeType: f.type,
+        data: b64,
+        folderId: CFG.driveFolder
+      });
+      if (res && res.fileId) {
+        uploaded++;
+      } else {
         failed++;
-        console.error('Excepción subiendo',f.name,e);
+        console.error('Error subiendo', f.name, res?.error || 'sin respuesta del script');
       }
     } else {
-      // Sin script configurado: preview local
-      localPhotos.unshift({name,date,url:URL.createObjectURL(f),filename:f.name});
+      // Sin script: preview local solamente
+      localPhotos.unshift({ name, date, dataUrl: URL.createObjectURL(f), filename: f.name });
       uploaded++;
     }
   }
 
-  bar.style.width='100%';
-  if(failed===0){
-    status.textContent=`✓ ${uploaded} foto${uploaded!==1?'s':''} subida${uploaded!==1?'s':''} con éxito`;
-  } else if(uploaded===0){
-    status.textContent=`✗ No se pudieron subir las fotos. Revisa los permisos del script.`;
-    status.style.color='#c0392b';
+  bar.style.width = '100%';
+  if (uploaded > 0 && failed === 0) {
+    status.textContent = `✓ ${uploaded} foto${uploaded !== 1 ? 's' : ''} subida${uploaded !== 1 ? 's' : ''} con éxito`;
+  } else if (uploaded === 0) {
+    status.textContent = '✗ No se pudo subir ninguna foto. Revisa los permisos del script.';
+    status.style.color = '#c0392b';
   } else {
-    status.textContent=`${uploaded} subida${uploaded!==1?'s':''}, ${failed} con error.`;
+    status.textContent = `${uploaded} subida${uploaded!==1?'s':''}, ${failed} con error.`;
   }
 
-  setTimeout(()=>{progress.style.display='none';status.textContent='';status.style.color='';},4000);
-  pendingFiles=[];
-  document.getElementById('album-preview').innerHTML='';
-  document.getElementById('album-files').value='';
-  btn.disabled=false;
-  btn.innerHTML='📤 &nbsp; Subir fotos al álbum';
-  if(uploaded>0){
+  setTimeout(() => { progress.style.display = 'none'; status.textContent = ''; status.style.color = ''; }, 4000);
+  pendingFiles = [];
+  document.getElementById('album-preview').innerHTML = '';
+  document.getElementById('album-files').value = '';
+  btn.disabled = false;
+  btn.innerHTML = '📤 &nbsp; Subir fotos al álbum';
+
+  if (uploaded > 0) {
     toast(`¡${uploaded} foto${uploaded!==1?'s':''} compartida${uploaded!==1?'s':''} con los novios! 📸`);
     loadAlbum();
   } else {
-    toast('No se pudo subir ninguna foto. Revisa la consola.');
+    toast('No se pudo subir ninguna foto. Revisa la consola (F12).');
   }
 }
-const localPhotos=[];
-async function loadAlbum(){
-  if(!configured()){renderAlbum(localPhotos);return;}
-  const r=await api({action:'getPhotos',folderId:CFG.driveFolder});if(r&&r.photos)renderAlbum(r.photos);
+
+async function loadAlbum() {
+  if (!configured()) { renderAlbum(localPhotos); return; }
+  const r = await api({ action: 'getPhotos', folderId: CFG.driveFolder });
+  if (r && r.photos) renderAlbum(r.photos);
 }
-function renderAlbum(photos){
-  const empty=document.getElementById('album-empty'),grid=document.getElementById('album-grid'),label=document.getElementById('album-gallery-label');
-  if(!photos||!photos.length){empty.style.display='block';grid.innerHTML='';label.style.display='none';return;}
-  empty.style.display='none';label.style.display='block';grid.innerHTML='';
-  photos.forEach(p=>{const d=document.createElement('div');d.className='album-grid-item';d.innerHTML=`<img src="${p.thumbnailUrl||p.url||''}" alt="" loading="lazy">`;d.onclick=()=>openLightbox(p.url||p.thumbnailUrl||'');grid.appendChild(d);});
+
+function renderAlbum(photos) {
+  const empty = document.getElementById('album-empty');
+  const grid  = document.getElementById('album-grid');
+  const label = document.getElementById('album-gallery-label');
+
+  if (!photos || !photos.length) {
+    empty.style.display = 'block';
+    grid.innerHTML = '';
+    label.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  label.style.display = 'block';
+  grid.innerHTML = '';
+
+  photos.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'album-grid-item';
+
+    // Usar dataUrl si viene (local), o construir proxy URL via Apps Script
+    const src = p.dataUrl
+      ? p.dataUrl
+      : `${CFG.scriptUrl}?action=getPhotoData&fileId=${p.fileId}`;
+
+    // Para fotos de Drive usamos el thumbnail público de Google (no requiere auth para thumbnails pequeños)
+    const thumbSrc = p.fileId
+      ? `https://lh3.googleusercontent.com/d/${p.fileId}=w400`
+      : p.dataUrl || '';
+
+    const fullSrc = p.fileId
+      ? `https://lh3.googleusercontent.com/d/${p.fileId}`
+      : p.dataUrl || '';
+
+    d.innerHTML = `<img src="${thumbSrc}" alt="${esc(p.name||'')}" loading="lazy" onerror="this.style.opacity='.3'">`;
+    d.onclick = () => openLightbox(fullSrc);
+    grid.appendChild(d);
+  });
 }
 
 // ── ADMIN ─────────────────────────────────────────────────
@@ -877,7 +954,24 @@ async function loadAdminData(){
   wishes.forEach(w=>{const d=document.createElement('div');d.className='admin-wish-row';d.innerHTML=`<div class="admin-wish-author">${esc(w.name)}</div><div class="admin-wish-text">"${esc(w.text)}"</div><div class="admin-wish-date">${w.date||''}</div>`;wl.appendChild(d);});
   const pl=document.getElementById('admin-photos-list');
   pl.innerHTML=photos.length?'':'<div class="empty-state" style="padding:1rem 0;"><div class="empty-state-text">Sin fotos aún</div></div>';
-  if(photos.length){const g=document.createElement('div');g.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:.5rem;';photos.forEach(p=>{const d=document.createElement('div');d.style.cssText='aspect-ratio:1;overflow:hidden;border-radius:1px;cursor:pointer;';d.innerHTML=`<img src="${p.thumbnailUrl||p.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;d.onclick=()=>openLightbox(p.url);g.appendChild(d);});pl.appendChild(g);const n=document.createElement('div');n.style.cssText='font-family:Cormorant Garamond,serif;font-style:italic;font-size:.82rem;color:#8a9ba3;text-align:center;margin-top:.6rem;';n.textContent=`${photos.length} foto${photos.length!==1?'s':''} en el álbum`;pl.appendChild(n);}
+  if(photos.length){
+    const g=document.createElement('div');
+    g.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:.5rem;';
+    photos.forEach(p=>{
+      const d=document.createElement('div');
+      d.style.cssText='aspect-ratio:1;overflow:hidden;border-radius:1px;cursor:pointer;';
+      const thumb=p.fileId?`https://lh3.googleusercontent.com/d/${p.fileId}=w200`:'' ;
+      const full =p.fileId?`https://lh3.googleusercontent.com/d/${p.fileId}`:'';
+      d.innerHTML=`<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.style.opacity='.3'">`;
+      d.onclick=()=>openLightbox(full);
+      g.appendChild(d);
+    });
+    pl.appendChild(g);
+    const n=document.createElement('div');
+    n.style.cssText='font-family:Cormorant Garamond,serif;font-style:italic;font-size:.82rem;color:#8a9ba3;text-align:center;margin-top:.6rem;';
+    n.textContent=`${photos.length} foto${photos.length!==1?'s':''} en el álbum`;
+    pl.appendChild(n);
+  }
 }
 
 // ── START ─────────────────────────────────────────────────
