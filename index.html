@@ -712,7 +712,23 @@ function closeLightbox(){document.getElementById('lightbox').classList.remove('o
 
 async function api(data){
   if(!configured())return null;
-  try{const r=await fetch(CFG.scriptUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}
+  try{
+    const r=await fetch(CFG.scriptUrl,{
+      method:'POST',
+      // 'no-cors' no sirve para leer respuesta; usamos redirect:'follow' que es el default
+      // Apps Script requiere text/plain para evitar preflight CORS
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(data)
+    });
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const text=await r.text();
+    // Apps Script a veces devuelve HTML de error en vez de JSON
+    if(text.trim().startsWith('<')) throw new Error('Apps Script devolvió HTML — verifica permisos y URL');
+    return JSON.parse(text);
+  }catch(e){
+    console.error('API error:',e.message);
+    return null;
+  }
 }
 
 // ── RSVP ──────────────────────────────────────────────────
@@ -773,22 +789,62 @@ function removeFile(i){pendingFiles.splice(i,1);const dt=new DataTransfer();pend
 function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
 async function submitAlbum(){
   const name=document.getElementById('album-name').value.trim();
-  if(!name){toast('Por favor escribe tu nombre ✏️');return;}if(!pendingFiles.length){toast('Selecciona al menos una foto 📸');return;}
+  if(!name){toast('Por favor escribe tu nombre ✏️');return;}
+  if(!pendingFiles.length){toast('Selecciona al menos una foto 📸');return;}
   const btn=document.getElementById('album-submit');btn.disabled=true;
   const progress=document.getElementById('album-progress'),bar=document.getElementById('album-progress-bar'),status=document.getElementById('album-status');
   progress.style.display='block';
   const date=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long'});
-  let uploaded=0;
+  let uploaded=0, failed=0;
+
   for(let i=0;i<pendingFiles.length;i++){
-    const f=pendingFiles[i];status.textContent=`Subiendo foto ${i+1} de ${pendingFiles.length}…`;bar.style.width=`${(i/pendingFiles.length)*100}%`;
-    if(configured()){try{const b64=await toBase64(f);await api({action:'uploadPhoto',name,date,filename:f.name,mimeType:f.type,data:b64,folderId:CFG.driveFolder});uploaded++;}catch(e){}}
-    else{localPhotos.unshift({name,date,url:URL.createObjectURL(f),filename:f.name});uploaded++;}
+    const f=pendingFiles[i];
+    status.textContent=`Subiendo foto ${i+1} de ${pendingFiles.length}…`;
+    bar.style.width=`${Math.round((i/pendingFiles.length)*100)}%`;
+
+    if(configured()){
+      try{
+        const b64=await toBase64(f);
+        const r=await api({action:'uploadPhoto',name,date,filename:f.name,mimeType:f.type,data:b64,folderId:CFG.driveFolder});
+        if(r && r.success){
+          uploaded++;
+        } else {
+          failed++;
+          console.error('Error subiendo',f.name, r?.error||'sin respuesta');
+        }
+      }catch(e){
+        failed++;
+        console.error('Excepción subiendo',f.name,e);
+      }
+    } else {
+      // Sin script configurado: preview local
+      localPhotos.unshift({name,date,url:URL.createObjectURL(f),filename:f.name});
+      uploaded++;
+    }
   }
-  bar.style.width='100%';status.textContent=`✓ ${uploaded} foto${uploaded!==1?'s':''} subida${uploaded!==1?'s':''} con éxito`;
-  setTimeout(()=>{progress.style.display='none';status.textContent='';},3000);
-  pendingFiles=[];document.getElementById('album-preview').innerHTML='';document.getElementById('album-files').value='';
-  btn.disabled=false;btn.innerHTML='📤 &nbsp; Subir fotos al álbum';
-  toast('¡Fotos compartidas con los novios! 📸');loadAlbum();
+
+  bar.style.width='100%';
+  if(failed===0){
+    status.textContent=`✓ ${uploaded} foto${uploaded!==1?'s':''} subida${uploaded!==1?'s':''} con éxito`;
+  } else if(uploaded===0){
+    status.textContent=`✗ No se pudieron subir las fotos. Revisa los permisos del script.`;
+    status.style.color='#c0392b';
+  } else {
+    status.textContent=`${uploaded} subida${uploaded!==1?'s':''}, ${failed} con error.`;
+  }
+
+  setTimeout(()=>{progress.style.display='none';status.textContent='';status.style.color='';},4000);
+  pendingFiles=[];
+  document.getElementById('album-preview').innerHTML='';
+  document.getElementById('album-files').value='';
+  btn.disabled=false;
+  btn.innerHTML='📤 &nbsp; Subir fotos al álbum';
+  if(uploaded>0){
+    toast(`¡${uploaded} foto${uploaded!==1?'s':''} compartida${uploaded!==1?'s':''} con los novios! 📸`);
+    loadAlbum();
+  } else {
+    toast('No se pudo subir ninguna foto. Revisa la consola.');
+  }
 }
 const localPhotos=[];
 async function loadAlbum(){
