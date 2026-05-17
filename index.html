@@ -467,11 +467,7 @@ let CFG = {};           // config.json raíz
 let musicFiles = [];    // music/config.json → files[]
 let musicIndex = 0;     // canción actual
 let musicStarted = false;
-const audio = new Audio();
-audio.addEventListener('ended', () => {
-  musicIndex = (musicIndex + 1) % musicFiles.length;
-  playTrack(musicIndex);
-});
+let audio = null;       // se inicializa tras cargar config
 
 // ── BOOT: cargar todos los configs ────────────────────────
 async function boot() {
@@ -494,6 +490,17 @@ function hideLoading() {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('main-page').style.display = 'flex';
   if (musicFiles.length > 0) {
+    // Crear Audio solo ahora que tenemos las rutas correctas
+    audio = new Audio();
+    audio.volume = 0.7;
+    audio.preload = 'auto';
+    audio.addEventListener('ended', () => {
+      musicIndex = (musicIndex + 1) % musicFiles.length;
+      playTrack(musicIndex);
+    });
+    audio.addEventListener('error', () => {
+      console.warn('No se pudo cargar:', musicFiles[musicIndex]);
+    });
     document.getElementById('music-btn').style.display = 'flex';
     setupMusicAutoplay();
   }
@@ -584,41 +591,56 @@ function applyConfig(c, photoFiles) {
 
 // ── MUSIC ─────────────────────────────────────────────────
 function setupMusicAutoplay() {
+  // En escritorio intentamos autoplay directo; en móvil esperamos interacción
+  audio.src = musicFiles[0];
+  audio.load();
   const tryPlay = () => {
-    if (!musicStarted) {
-      playTrack(0);
-      document.removeEventListener('touchstart', tryPlay);
-      document.removeEventListener('click', tryPlay);
-    }
+    if (!musicStarted) playTrack(0);
   };
-  document.addEventListener('touchstart', tryPlay, { once: true });
-  document.addEventListener('click', tryPlay, { once: true });
+  // Intentar autoplay inmediato (funciona en escritorio)
+  audio.play().then(() => {
+    musicStarted = true;
+    setMusicUI(true);
+  }).catch(() => {
+    // Bloqueado por el navegador — esperar primer toque/click
+    document.addEventListener('touchstart', tryPlay, { once: true });
+    document.addEventListener('click',      tryPlay, { once: true });
+  });
 }
 
 function playTrack(idx) {
-  if (!musicFiles.length) return;
+  if (!audio || !musicFiles.length) return;
+  musicIndex = idx;
   audio.src = musicFiles[idx];
+  audio.load();
   audio.play().then(() => {
     musicStarted = true;
-    document.getElementById('music-btn').classList.add('playing');
-    document.getElementById('music-icon-play').style.display = 'none';
+    setMusicUI(true);
+  }).catch(e => console.warn('playTrack error:', e));
+}
+
+function setMusicUI(playing) {
+  const btn = document.getElementById('music-btn');
+  if (playing) {
+    btn.classList.add('playing');
+    document.getElementById('music-icon-play').style.display  = 'none';
     document.getElementById('music-icon-pause').style.display = 'block';
-  }).catch(() => {});
+  } else {
+    btn.classList.remove('playing');
+    document.getElementById('music-icon-play').style.display  = 'block';
+    document.getElementById('music-icon-pause').style.display = 'none';
+  }
 }
 
 function toggleMusic() {
+  if (!audio) return;
   if (audio.paused) {
-    if (!musicStarted) playTrack(musicIndex);
-    else audio.play();
-    document.getElementById('music-btn').classList.add('playing');
-    document.getElementById('music-icon-play').style.display = 'none';
-    document.getElementById('music-icon-pause').style.display = 'block';
+    if (!musicStarted) playTrack(0);
+    else audio.play().then(() => setMusicUI(true)).catch(() => {});
     musicStarted = true;
   } else {
     audio.pause();
-    document.getElementById('music-btn').classList.remove('playing');
-    document.getElementById('music-icon-play').style.display = 'block';
-    document.getElementById('music-icon-pause').style.display = 'none';
+    setMusicUI(false);
   }
 }
 
