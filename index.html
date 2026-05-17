@@ -3,20 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boda Neily & Marco</title>
+<title>Boda</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@300;400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root{--sky:#aecbd6;--sky-light:#d8eaf0;--sky-deep:#7aafc2;--gray-warm:#8a9ba3;--gray-mid:#b0bec5;--gray-soft:#e8eff2;--white:#f9fdff;--dark:#2c3e47;--gold:#c9b07a;}
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{width:100%;min-height:100%;background:var(--dark);font-family:'Lato',sans-serif;color:var(--dark);overflow-x:hidden;}
+
+  /* LOADING SCREEN */
+  #loading{position:fixed;inset:0;background:var(--dark);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+  .loading-floret{animation:spin-slow 4s linear infinite;}
+  @keyframes spin-slow{to{transform:rotate(360deg)}}
+  .loading-text{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--sky);opacity:.8;}
+
   #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
   .petal{position:absolute;border-radius:50% 0 50% 0;opacity:0;animation:fall linear infinite;}
   @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}10%{opacity:.6}90%{opacity:.4}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
-  .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem 4rem;}
+
+  .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem 5rem;}
+
+  /* MUSIC BTN */
+  .music-btn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:300;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--sky-deep),#5a9cb5);border:none;cursor:pointer;box-shadow:0 4px 18px rgba(122,175,194,.5);display:flex;align-items:center;justify-content:center;transition:transform .2s;}
+  .music-btn:hover{transform:scale(1.08);}
+  .music-btn svg{width:20px;height:20px;color:#fff;}
+  .music-btn.playing{animation:pulse-ring 2s ease infinite;}
+  @keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(122,175,194,.5)}70%{box-shadow:0 0 0 10px rgba(122,175,194,0)}100%{box-shadow:0 0 0 0 rgba(122,175,194,0)}}
 
   /* NAV */
   .nav-tabs{display:flex;gap:4px;background:rgba(255,255,255,.08);border-radius:40px;padding:5px;margin-bottom:1.5rem;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);flex-wrap:wrap;justify-content:center;}
-  .nav-tab{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);padding:.5rem .85rem;border-radius:30px;cursor:pointer;white-space:nowrap;border:none;background:transparent;transition:all .3s;}
+  .nav-tab{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);padding:.5rem .85rem;border-radius:30px;cursor:pointer;white-space:nowrap;border:none;background:transparent;transition:all .3s;}
   .nav-tab.active{background:var(--sky-deep);color:var(--white);box-shadow:0 4px 14px rgba(122,175,194,.4);}
   .nav-tab:hover:not(.active){color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);}
   .nav-tab.admin-tab{color:rgba(201,176,122,.8);}
@@ -44,17 +59,17 @@
   .floret{display:block;margin:0 auto 1.2rem;}
 
   /* COUNTDOWN */
-  .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--sky-deep);border:none;margin:0;}
+  .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--sky-deep);}
   .cd-cell{background:var(--dark);padding:.9rem .4rem;text-align:center;}
   .cd-num{font-family:'Cinzel',serif;font-size:clamp(1.4rem,5vw,2rem);color:var(--white);line-height:1;}
-  .cd-label{font-family:'Lato',sans-serif;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--sky);margin-top:.25rem;}
+  .cd-label{font-family:'Lato',sans-serif;font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:var(--sky);margin-top:.25rem;}
 
   /* ACTION BUTTONS */
   .action-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--gray-mid);}
   .action-btn{background:var(--white);padding:.9rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;border:none;text-decoration:none;transition:background .2s;}
   .action-btn:hover{background:var(--sky-light);}
   .action-btn svg{width:22px;height:22px;color:var(--sky-deep);}
-  .action-btn span{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-warm);text-align:center;line-height:1.3;}
+  .action-btn span{font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-warm);text-align:center;line-height:1.3;}
 
   /* BODY */
   .body{padding:0 2rem 2rem;}
@@ -66,9 +81,7 @@
   .info-content{flex:1;}
   .info-label{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-warm);margin-bottom:.2rem;}
   .info-value{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--dark);line-height:1.4;}
-
-  /* MAP BUTTON */
-  .map-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;margin-top:1px;padding:1rem;background:var(--sky-deep);color:var(--white);border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;transition:background .2s;}
+  .map-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;margin-top:1px;padding:1rem;background:var(--sky-deep);color:var(--white);border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;transition:background .2s;}
   .map-btn:hover{background:#5a9cb5;}
   .map-btn svg{width:18px;height:18px;flex-shrink:0;}
 
@@ -81,29 +94,26 @@
   .tl-item:last-child{margin-bottom:0;}
   .tl-dot{position:absolute;left:-1.45rem;top:.3rem;width:10px;height:10px;border-radius:50%;background:var(--sky-deep);border:2px solid var(--white);box-shadow:0 0 0 1px var(--sky-deep);}
   .tl-time{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.15em;color:var(--sky-deep);margin-bottom:.15rem;}
-  .tl-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--dark);font-weight:400;}
+  .tl-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--dark);}
   .tl-desc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:var(--gray-warm);margin-top:.1rem;}
 
   /* DRESS CODE */
   .dress-section{padding:1.5rem 2rem;background:var(--sky-light);text-align:center;}
   .dress-title{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--sky-deep);margin-bottom:1rem;}
-  .dress-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;justify-items:center;margin-bottom:.8rem;}
+  .dress-grid{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.8rem;}
   .swatch-wrap{display:flex;flex-direction:column;align-items:center;gap:.3rem;}
   .swatch{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.8);box-shadow:0 2px 6px rgba(0,0,0,.15);}
-  .swatch-name{font-family:'Lato',sans-serif;font-size:.55rem;color:var(--gray-warm);text-align:center;}
+  .swatch-name{font-family:'Lato',sans-serif;font-size:.52rem;color:var(--gray-warm);text-align:center;}
   .dress-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:var(--gray-warm);}
 
   /* GALLERY */
   .gallery-section{padding:1.8rem 2rem;}
   .gallery-title{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--sky-deep);text-align:center;margin-bottom:1rem;}
   .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
-  .gallery-item{aspect-ratio:1;background:var(--sky-light);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:1px;cursor:pointer;}
+  .gallery-item{aspect-ratio:1;background:var(--sky-light);overflow:hidden;border-radius:1px;cursor:pointer;}
   .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
   .gallery-item:hover img{transform:scale(1.05);}
-  .gallery-placeholder{display:flex;flex-direction:column;align-items:center;gap:.4rem;}
-  .gallery-placeholder svg{width:28px;height:28px;color:var(--sky-deep);opacity:.5;}
-  .gallery-placeholder span{font-family:'Lato',sans-serif;font-size:.6rem;color:var(--gray-warm);text-align:center;line-height:1.4;}
-  .gallery-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.85rem;color:var(--gray-warm);text-align:center;margin-top:.8rem;}
+  .gallery-empty{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:var(--gray-warm);text-align:center;padding:1.5rem 0;}
 
   /* FOOTER */
   .footer{background:linear-gradient(160deg,var(--sky-deep),var(--dark));padding:2.5rem 2rem;text-align:center;}
@@ -117,7 +127,7 @@
   .section-subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.92rem;color:var(--gray-warm);}
 
   /* FORMS */
-  .rsvp-body,.guestbook-body{padding:1.8rem 2rem 2.2rem;}
+  .rsvp-body,.guestbook-body,.album-body{padding:1.8rem 2rem 2.2rem;}
   .form-group{margin-bottom:1.1rem;}
   .form-label{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gray-warm);display:block;margin-bottom:.35rem;}
   .form-input,.form-select{width:100%;padding:.72rem 1rem;border:1px solid var(--gray-mid);border-radius:2px;font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--dark);background:var(--white);outline:none;transition:border-color .2s;appearance:none;}
@@ -130,12 +140,9 @@
   .submit-btn{width:100%;margin-top:1.4rem;padding:.95rem;background:linear-gradient(135deg,var(--sky-deep),#5a9cb5);color:var(--white);border:none;border-radius:2px;font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:0 4px 16px rgba(122,175,194,.35);}
   .submit-btn:hover{transform:translateY(-1px);}
   .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-
-  /* WHATSAPP BTN */
-  .wa-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;margin-top:.8rem;padding:.85rem;background:#25d366;color:#fff;border:none;border-radius:2px;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:background .2s;}
+  .wa-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;margin-top:.8rem;padding:.85rem;background:#25d366;color:#fff;border:none;border-radius:2px;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:background .2s;}
   .wa-btn:hover{background:#1ebe5d;}
   .wa-btn svg{width:18px;height:18px;flex-shrink:0;}
-
   .rsvp-counter{text-align:center;margin-bottom:1.8rem;padding:.9rem;background:var(--sky-light);border-radius:2px;}
   .rsvp-counter-num{font-family:'Cinzel',serif;font-size:2rem;color:var(--sky-deep);}
   .rsvp-counter-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.88rem;color:var(--gray-warm);}
@@ -148,7 +155,6 @@
   .rsvp-badge{font-size:.58rem;font-family:'Cinzel',serif;letter-spacing:.1em;padding:.2rem .6rem;border-radius:20px;}
   .rsvp-badge.yes{background:var(--sky-light);color:var(--sky-deep);}
   .rsvp-badge.no{background:var(--gray-soft);color:var(--gray-warm);}
-
   .wish-textarea{width:100%;padding:.85rem 1rem;border:1px solid var(--gray-mid);border-radius:2px;font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--dark);background:var(--white);resize:none;outline:none;min-height:90px;transition:border-color .2s;line-height:1.6;}
   .wish-textarea:focus{border-color:var(--sky-deep);box-shadow:0 0 0 3px rgba(122,175,194,.15);}
   .wish-card{padding:1.3rem;border-bottom:1px solid var(--gray-soft);position:relative;}
@@ -159,9 +165,26 @@
   .wish-heart{position:absolute;top:1.1rem;right:1.1rem;font-size:.9rem;color:var(--sky);cursor:pointer;transition:transform .2s;user-select:none;}
   .wish-heart:hover{transform:scale(1.3);}
   .wish-date{font-family:'Lato',sans-serif;font-size:.68rem;color:var(--gray-mid);margin-top:.25rem;}
-  .empty-state{text-align:center;padding:2.2rem 1rem;}
-  .empty-state-icon{font-size:2.2rem;margin-bottom:.7rem;opacity:.4;}
-  .empty-state-text{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gray-warm);font-size:1rem;}
+
+  /* ALBUM */
+  .album-upload-area{border:2px dashed var(--gray-mid);border-radius:2px;padding:2rem 1rem;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:1.2rem;background:var(--white);position:relative;}
+  .album-upload-area:hover{border-color:var(--sky-deep);background:var(--sky-light);}
+  .album-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .album-upload-icon{font-size:2rem;margin-bottom:.5rem;opacity:.5;}
+  .album-upload-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:var(--gray-warm);line-height:1.5;}
+  .album-upload-sub{font-family:'Lato',sans-serif;font-size:.7rem;color:var(--gray-mid);margin-top:.3rem;}
+  .album-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:1rem;}
+  .album-preview-item{aspect-ratio:1;position:relative;overflow:hidden;border-radius:1px;}
+  .album-preview-item img{width:100%;height:100%;object-fit:cover;}
+  .album-preview-remove{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:.65rem;display:flex;align-items:center;justify-content:center;}
+  .album-progress{height:4px;background:var(--gray-soft);border-radius:2px;margin-bottom:1rem;display:none;}
+  .album-progress-bar{height:100%;background:var(--sky-deep);border-radius:2px;transition:width .3s;width:0;}
+  .album-status{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:var(--sky-deep);text-align:center;margin-bottom:.8rem;min-height:1.2rem;}
+  .album-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:1.5rem;}
+  .album-grid-item{aspect-ratio:1;overflow:hidden;border-radius:1px;cursor:pointer;}
+  .album-grid-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+  .album-grid-item:hover img{transform:scale(1.05);}
+  .album-section-label{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-warm);text-align:center;margin:1.5rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--gray-soft);}
 
   /* ADMIN */
   .admin-header{background:linear-gradient(160deg,#f5eed8 0%,var(--white) 60%);padding:2.2rem 2rem 1.4rem;text-align:center;}
@@ -187,43 +210,60 @@
   .config-notice{background:#fff8e8;border:1px solid #e8d5a3;border-radius:2px;padding:.9rem 1.1rem;margin-bottom:1.4rem;font-family:'Cormorant Garamond',serif;font-size:.92rem;color:#7a6030;line-height:1.6;}
   .config-notice strong{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.1em;display:block;margin-bottom:.25rem;}
 
-  /* TOAST */
-  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:var(--white);padding:.85rem 1.6rem;border-radius:40px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.98rem;z-index:100;opacity:0;transition:all .4s cubic-bezier(.22,1,.36,1);border:1px solid var(--sky-deep);white-space:nowrap;max-width:90vw;text-align:center;}
+  /* SHARED */
+  .empty-state{text-align:center;padding:2.2rem 1rem;}
+  .empty-state-icon{font-size:2.2rem;margin-bottom:.7rem;opacity:.4;}
+  .empty-state-text{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gray-warm);font-size:1rem;}
+  .toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:var(--white);padding:.85rem 1.6rem;border-radius:40px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.98rem;z-index:200;opacity:0;transition:all .4s cubic-bezier(.22,1,.36,1);border:1px solid var(--sky-deep);white-space:nowrap;max-width:90vw;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:.4rem;}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-  /* LIGHTBOX */
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center;}
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;align-items:center;justify-content:center;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:2px;}
-  .lightbox-close{position:absolute;top:1rem;right:1rem;color:#fff;font-size:1.8rem;cursor:pointer;background:none;border:none;line-height:1;}
+  .lightbox-close{position:absolute;top:1rem;right:1rem;color:#fff;font-size:1.8rem;cursor:pointer;background:none;border:none;}
 
   @media(max-width:400px){
     .form-row{grid-template-columns:1fr}
-    .body,.rsvp-body,.guestbook-body,.admin-body,.section-block,.gallery-section,.dress-section{padding-left:1.3rem;padding-right:1.3rem}
+    .body,.rsvp-body,.guestbook-body,.album-body,.admin-body,.section-block,.gallery-section,.dress-section{padding-left:1.3rem;padding-right:1.3rem}
     .header,.section-header,.admin-header{padding-left:1.3rem;padding-right:1.3rem}
-    .nav-tab{padding:.45rem .65rem;font-size:.48rem}
+    .nav-tab{padding:.45rem .6rem;font-size:.46rem}
   }
 </style>
 </head>
 <body>
+
+<!-- Loading screen -->
+<div id="loading">
+  <svg class="loading-floret" width="60" height="60" viewBox="0 0 60 60" fill="none">
+    <circle cx="30" cy="30" r="4" fill="#7aafc2"/>
+    <ellipse cx="30" cy="16" rx="4" ry="7" fill="#aecbd6" opacity=".7"/>
+    <ellipse cx="30" cy="44" rx="4" ry="7" fill="#aecbd6" opacity=".7"/>
+    <ellipse cx="16" cy="30" rx="7" ry="4" fill="#aecbd6" opacity=".7"/>
+    <ellipse cx="44" cy="30" rx="7" ry="4" fill="#aecbd6" opacity=".7"/>
+  </svg>
+  <div class="loading-text">Cargando invitación…</div>
+</div>
+
 <div id="particles"></div>
 
-<div class="page">
+<button class="music-btn" id="music-btn" onclick="toggleMusic()" title="Música" style="display:none;">
+  <svg id="music-icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+  <svg id="music-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+</button>
+
+<div class="page" id="main-page" style="display:none;">
   <div class="nav-tabs" id="nav-tabs">
     <button class="nav-tab active" onclick="showView('invitation')">Invitación</button>
     <button class="nav-tab" onclick="showView('rsvp')">Confirmación</button>
     <button class="nav-tab" onclick="showView('guestbook')">Deseos</button>
+    <button class="nav-tab" onclick="showView('album')">📸 Álbum</button>
   </div>
 
   <!-- ═══ VIEW 1: INVITATION ═══ -->
   <div class="view active" id="view-invitation">
     <div class="card animate-in">
       <div class="band"></div>
-
-      <!-- Header -->
       <div class="header">
         <svg class="floret" width="56" height="56" viewBox="0 0 60 60" fill="none">
           <circle cx="30" cy="30" r="4" fill="#7aafc2"/>
@@ -237,98 +277,67 @@
           <ellipse cx="19.4" cy="40.6" rx="4" ry="7" transform="rotate(45 19.4 40.6)" fill="#b0bec5" opacity=".5"/>
         </svg>
         <p class="pre-text">Con alegría les invitamos a celebrar</p>
-        <div class="names">Neily Soria<span class="amp">&</span>Marco Adolfo</div>
+        <div class="names" id="couple-name-display">— &amp; —<span class="amp">&</span></div>
         <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
       </div>
-
-      <!-- Countdown -->
       <div class="countdown">
         <div class="cd-cell"><div class="cd-num" id="cd-days">--</div><div class="cd-label">Días</div></div>
         <div class="cd-cell"><div class="cd-num" id="cd-hours">--</div><div class="cd-label">Horas</div></div>
         <div class="cd-cell"><div class="cd-num" id="cd-mins">--</div><div class="cd-label">Minutos</div></div>
         <div class="cd-cell"><div class="cd-num" id="cd-secs">--</div><div class="cd-label">Segundos</div></div>
       </div>
-
-      <!-- Action buttons -->
       <div class="action-btns">
-        <a class="action-btn" id="btn-calendar" href="#" onclick="addToCalendar(event)">
+        <a class="action-btn" href="#" onclick="addToCalendar(event)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span>Agregar al calendario</span>
         </a>
-        <a class="action-btn" href="https://maps.google.com/?q=Parroquia+Nuestra+Señora+del+Rosario,+Pino+Suárez+47,+Tlaquepaque,+Jalisco" target="_blank" rel="noopener">
+        <a class="action-btn" id="maps-btn" href="#" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span>Ver en mapa</span>
         </a>
-        <a class="action-btn" href="https://wa.me/523313324735?text=¡Hola!%20Confirmo%20mi%20asistencia%20a%20su%20boda%20el%2023%20de%20mayo%20🎊" target="_blank" rel="noopener">
+        <a class="action-btn" id="wa-action-btn" href="#" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.864L0 24l6.335-1.521A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-5.003-1.368l-.36-.214-3.762.904.938-3.658-.235-.374A9.772 9.772 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
           <span>WhatsApp novios</span>
         </a>
       </div>
-
-      <!-- Info -->
       <div class="body">
         <p class="invite-text">Juntos y en compañía de nuestras familias,<br>los invitamos a compartir el momento<br>en que uniremos nuestras vidas ante Dios.</p>
         <div class="info-block">
           <div class="info-row">
             <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-            <div class="info-content"><div class="info-label">Fecha</div><div class="info-value">Viernes, 23 de Mayo de 2025</div></div>
+            <div class="info-content"><div class="info-label">Fecha</div><div class="info-value" id="info-date">—</div></div>
           </div>
           <div class="info-row">
             <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <div class="info-content"><div class="info-label">Hora de la Misa</div><div class="info-value">7:00 PM</div></div>
+            <div class="info-content"><div class="info-label">Hora de la Misa</div><div class="info-value" id="info-time">—</div></div>
           </div>
           <div class="info-row">
             <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
-            <div class="info-content"><div class="info-label">Lugar</div><div class="info-value">Parroquia Ntra. Sra. del Rosario<br><span style="font-size:.92rem;color:#8a9ba3;">Pino Suárez 47, Tlaquepaque, Jalisco</span></div></div>
+            <div class="info-content"><div class="info-label">Lugar</div><div class="info-value" id="info-venue">—</div></div>
           </div>
         </div>
-        <!-- Map button -->
-        <a class="map-btn" href="https://maps.google.com/?q=Parroquia+Nuestra+Señora+del+Rosario,+Pino+Suárez+47,+Tlaquepaque,+Jalisco" target="_blank" rel="noopener">
+        <a class="map-btn" id="maps-btn-2" href="#" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           Cómo llegar — Google Maps
         </a>
       </div>
-
-      <!-- Itinerary -->
       <div class="section-block" style="background:var(--gray-soft);">
         <div class="section-block-title">Programa del día</div>
-        <div class="timeline">
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-time">6:30 PM</div><div class="tl-title">Bienvenida a los invitados</div><div class="tl-desc">Parroquia Ntra. Sra. del Rosario</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-time">7:00 PM</div><div class="tl-title">Ceremonia religiosa</div><div class="tl-desc">Misa de matrimonio</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-time">8:30 PM</div><div class="tl-title">Recepción y cóctel</div><div class="tl-desc">Brindis de bienvenida con los novios</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-time">9:30 PM</div><div class="tl-title">Cena y celebración</div><div class="tl-desc">Baile, música y festejo con familia y amigos</div></div>
-        </div>
+        <div class="timeline" id="timeline"></div>
       </div>
-
-      <!-- Dress code -->
       <div class="dress-section">
         <div class="dress-title">Código de vestimenta</div>
-        <div class="dress-grid">
-          <div class="swatch-wrap"><div class="swatch" style="background:#aecbd6;"></div><div class="swatch-name">Azul cielo</div></div>
-          <div class="swatch-wrap"><div class="swatch" style="background:#7aafc2;"></div><div class="swatch-name">Azul acero</div></div>
-          <div class="swatch-wrap"><div class="swatch" style="background:#b0bec5;"></div><div class="swatch-name">Gris plata</div></div>
-          <div class="swatch-wrap"><div class="swatch" style="background:#8a9ba3;"></div><div class="swatch-name">Gris medio</div></div>
-          <div class="swatch-wrap"><div class="swatch" style="background:#cfd8dc;"></div><div class="swatch-name">Gris suave</div></div>
-        </div>
-        <div class="dress-note">Formal. Por favor evita el blanco y el negro.</div>
+        <div class="dress-grid" id="dress-grid"></div>
+        <div class="dress-note" id="dress-note"></div>
       </div>
-
-      <!-- Gallery -->
       <div class="gallery-section">
         <div class="gallery-title">Nuestra historia</div>
-        <div class="gallery-grid" id="gallery-grid">
-          <!-- Placeholders — reemplaza src con tus fotos reales -->
-          <div class="gallery-item" onclick="openLightbox('foto1.png')"><img src="foto1.png" alt="Foto 1"></div>
-          <div class="gallery-item" onclick="openLightbox('foto2.png')"><img src="foto2.png" alt="Foto 2"></div>
-          <div class="gallery-item" onclick="openLightbox('foto3.png')"><img src="foto3.png" alt="Foto 3"></div>
-        </div>
-        <div class="gallery-note">Reemplaza los espacios con fotos de ustedes 💙</div>
+        <div class="gallery-grid" id="gallery-grid"></div>
       </div>
-
       <div class="footer">
-        <div class="footer-date">23 · 05 · 2025</div>
-        <div class="footer-year">Tlaquepaque, Jalisco</div>
-        <div class="footer-message">"Donde estés, estaré yo. Tu pueblo será mi pueblo,<br>y tu Dios será mi Dios." — Rut 1:16</div>
+        <div class="footer-date" id="footer-date">—</div>
+        <div class="footer-year" id="footer-city">—</div>
+        <div class="footer-message" id="footer-verse">—</div>
       </div>
       <div class="band-bottom"></div>
     </div>
@@ -341,7 +350,7 @@
       <div class="section-header">
         <svg width="38" height="38" viewBox="0 0 60 60" fill="none" style="display:block;margin:0 auto .9rem;"><circle cx="30" cy="30" r="4" fill="#7aafc2"/><ellipse cx="30" cy="16" rx="4" ry="7" fill="#aecbd6" opacity=".7"/><ellipse cx="30" cy="44" rx="4" ry="7" fill="#aecbd6" opacity=".7"/><ellipse cx="16" cy="30" rx="7" ry="4" fill="#aecbd6" opacity=".7"/><ellipse cx="44" cy="30" rx="7" ry="4" fill="#aecbd6" opacity=".7"/></svg>
         <div class="section-title">Confirmación de Asistencia</div>
-        <div class="section-subtitle">Por favor confirma antes del 16 de mayo</div>
+        <div class="section-subtitle" id="rsvp-deadline-text">Por favor confirma a tiempo</div>
         <div class="divider" style="margin-top:1.1rem;"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
       </div>
       <div class="rsvp-body">
@@ -352,14 +361,13 @@
           <div class="form-group"><label class="form-label">¿Asistirás?</label><div class="attend-toggle"><button class="attend-btn" id="btn-yes" onclick="selectAttend('yes')">Sí 🎉</button><button class="attend-btn" id="btn-no" onclick="selectAttend('no')">No</button></div></div>
         </div>
         <button class="submit-btn" id="rsvp-submit" onclick="submitRsvp()">Confirmar Asistencia</button>
-        <!-- WhatsApp -->
-        <a class="wa-btn" href="https://wa.me/521NUMERODENOVIOS?text=¡Hola!%20Confirmo%20mi%20asistencia%20a%20su%20boda%20el%2023%20de%20mayo%20🎊" target="_blank" rel="noopener">
+        <a class="wa-btn" id="wa-rsvp-btn" href="#" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.864L0 24l6.335-1.521A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-5.003-1.368l-.36-.214-3.762.904.938-3.658-.235-.374A9.772 9.772 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
           Enviar confirmación por WhatsApp
         </a>
         <div class="rsvp-list" id="rsvp-list" style="display:none;"><div class="rsvp-list-title">Últimas confirmaciones</div><div id="rsvp-items"></div></div>
       </div>
-      <div class="footer"><div class="footer-date" style="font-size:1.1rem;">23 · 05 · 2025</div><div class="footer-year">Neily &amp; Marco</div></div>
+      <div class="footer"><div class="footer-date" style="font-size:1.1rem;" id="rsvp-footer-date">—</div><div class="footer-year" id="rsvp-footer-names">—</div></div>
       <div class="band-bottom"></div>
     </div>
   </div>
@@ -376,29 +384,61 @@
       </div>
       <div class="guestbook-body">
         <div class="form-group"><label class="form-label">Tu nombre</label><input class="form-input" id="wish-name" type="text" placeholder="¿Cómo te llamas?"></div>
-        <div class="form-group"><label class="form-label">Tu mensaje</label><textarea class="wish-textarea" id="wish-text" placeholder="Escribe tus deseos para Neily y Marco…"></textarea></div>
+        <div class="form-group"><label class="form-label">Tu mensaje</label><textarea class="wish-textarea" id="wish-text" placeholder="Escribe tus deseos para los novios…"></textarea></div>
         <button class="submit-btn" id="wish-submit" onclick="submitWish()">✦ &nbsp; Enviar Deseo</button>
         <div style="margin-top:1.8rem;">
           <div id="wishes-empty" class="empty-state"><div class="empty-state-icon">💌</div><div class="empty-state-text">Sé el primero en dejar un mensaje<br>para los novios.</div></div>
           <div id="wishes-list"></div>
         </div>
       </div>
-      <div class="footer"><div class="footer-date" style="font-size:1.1rem;">23 · 05 · 2025</div><div class="footer-year">Con amor, Neily &amp; Marco</div><div class="footer-message">"El amor es paciente, es bondadoso…<br>todo lo soporta, todo lo espera." — 1 Cor 13</div></div>
+      <div class="footer"><div class="footer-date" style="font-size:1.1rem;" id="gb-footer-date">—</div><div class="footer-year" id="gb-footer-names">—</div><div class="footer-message" id="gb-footer-verse">—</div></div>
       <div class="band-bottom"></div>
     </div>
   </div>
 
-  <!-- ═══ VIEW 4: ADMIN ═══ -->
+  <!-- ═══ VIEW 4: ALBUM ═══ -->
+  <div class="view" id="view-album">
+    <div class="card">
+      <div class="band"></div>
+      <div class="section-header">
+        <div style="font-size:2rem;margin-bottom:.8rem;">📸</div>
+        <div class="section-title">Álbum de Recuerdos</div>
+        <div class="section-subtitle">Comparte tus fotos de la boda con los novios</div>
+        <div class="divider" style="margin-top:1.1rem;"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+      </div>
+      <div class="album-body">
+        <div class="form-group"><label class="form-label">Tu nombre</label><input class="form-input" id="album-name" type="text" placeholder="¿Quién comparte estas fotos?"></div>
+        <label class="form-label">Selecciona tus fotos</label>
+        <div class="album-upload-area" id="album-drop">
+          <input type="file" id="album-files" accept="image/*" multiple onchange="previewFiles(this)">
+          <div class="album-upload-icon">🖼️</div>
+          <div class="album-upload-text">Toca aquí para seleccionar fotos</div>
+          <div class="album-upload-sub">JPG, PNG · Máx. 10 MB por foto</div>
+        </div>
+        <div class="album-preview" id="album-preview"></div>
+        <div class="album-progress" id="album-progress"><div class="album-progress-bar" id="album-progress-bar"></div></div>
+        <div class="album-status" id="album-status"></div>
+        <button class="submit-btn" id="album-submit" onclick="submitAlbum()">📤 &nbsp; Subir fotos al álbum</button>
+        <div class="album-section-label" id="album-gallery-label" style="display:none;">Fotos compartidas por los invitados</div>
+        <div class="album-grid" id="album-grid"></div>
+        <div id="album-empty" class="empty-state"><div class="empty-state-icon">🌸</div><div class="empty-state-text">Aún no hay fotos en el álbum.<br>¡Sé el primero en compartir!</div></div>
+      </div>
+      <div class="footer"><div class="footer-date" style="font-size:1rem;" id="album-footer-names">—</div><div class="footer-year" id="album-footer-city">—</div><div class="footer-message">Cada foto cuenta una historia de amor 💙</div></div>
+      <div class="band-bottom"></div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW 5: ADMIN ═══ -->
   <div class="view" id="view-admin">
     <div class="card">
       <div class="band-gold"></div>
       <div class="admin-header">
         <div class="admin-title">✦ Panel de los Novios</div>
-        <div class="admin-subtitle">Neily &amp; Marco — 23 de Mayo 2025</div>
+        <div class="admin-subtitle" id="admin-subtitle">—</div>
         <div class="divider" style="margin-top:.9rem;"><div class="divider-line" style="background:#e8d5a3;"></div><div class="divider-diamond" style="background:#c9b07a;"></div><div class="divider-line" style="background:#e8d5a3;"></div></div>
       </div>
       <div class="admin-body">
-        <div id="admin-config-notice" class="config-notice"><strong>⚙ Conectar con Google Sheets</strong>Aún no has pegado la URL del script. Sigue las instrucciones para activar el guardado.</div>
+        <div id="admin-config-notice" class="config-notice"><strong>⚙ Conectar con Google Sheets</strong>Aún no has pegado la URL del script en config.json.</div>
         <button class="refresh-btn" onclick="loadAdminData()">↻ &nbsp; Actualizar datos</button>
         <div class="admin-stats">
           <div class="admin-stat"><div class="admin-stat-num" id="admin-total">—</div><div class="admin-stat-label">Total RSVP</div></div>
@@ -409,6 +449,8 @@
         <div id="admin-rsvp-list"><div class="empty-state" style="padding:1rem 0;"><div class="empty-state-text">Sin datos aún</div></div></div>
         <div class="admin-section-title">Buenos Deseos</div>
         <div id="admin-wishes-list"><div class="empty-state" style="padding:1rem 0;"><div class="empty-state-text">Sin mensajes aún</div></div></div>
+        <div class="admin-section-title">Fotos del Álbum</div>
+        <div id="admin-photos-list"><div class="empty-state" style="padding:1rem 0;"><div class="empty-state-text">Sin fotos aún</div></div></div>
       </div>
       <div class="footer" style="background:linear-gradient(160deg,#c9b07a,#7a6030);"><div class="footer-date" style="font-size:1rem;">Panel Privado</div><div class="footer-year">Solo para los novios 💍</div></div>
       <div class="band-gold-bottom"></div>
@@ -420,108 +462,256 @@
 <div class="lightbox" id="lightbox"><button class="lightbox-close" onclick="closeLightbox()">✕</button><img id="lightbox-img" src="" alt=""></div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycEUUzYt2it7DLkRVbCwXdzxDuMUDhA943cYxzGDQRQF3gg6FsRz39Od-CEQtq2PpW/exec';
-const ADMIN_PASS = 'Neily2026';
-const WEDDING_DATE = new Date('2026-05-23T19:00:00');
-// ────────────────────────────────────────────────────────────
+// ── GLOBAL STATE ───────────────────────────────────────────
+let CFG = {};           // config.json raíz
+let musicFiles = [];    // music/config.json → files[]
+let musicIndex = 0;     // canción actual
+let musicStarted = false;
+const audio = new Audio();
+audio.addEventListener('ended', () => {
+  musicIndex = (musicIndex + 1) % musicFiles.length;
+  playTrack(musicIndex);
+});
 
-// Particles
+// ── BOOT: cargar todos los configs ────────────────────────
+async function boot() {
+  try {
+    const [rootCfg, photoCfg, musicCfg] = await Promise.all([
+      fetch('config.json').then(r => r.json()),
+      fetch('photos/config.json').then(r => r.json()).catch(() => ({ files: [] })),
+      fetch('music/config.json').then(r => r.json()).catch(() => ({ files: [] }))
+    ]);
+    CFG = rootCfg;
+    musicFiles = (musicCfg.files || []).map(f => `music/${f}`);
+    applyConfig(rootCfg, photoCfg.files || []);
+  } catch(e) {
+    console.error('Error cargando config.json:', e);
+  }
+  hideLoading();
+}
+
+function hideLoading() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-page').style.display = 'flex';
+  if (musicFiles.length > 0) {
+    document.getElementById('music-btn').style.display = 'flex';
+    setupMusicAutoplay();
+  }
+  initCountdown();
+  checkAdminParam();
+}
+
+// ── APPLY CONFIG ──────────────────────────────────────────
+function applyConfig(c, photoFiles) {
+  document.title = `Boda ${c.coupleName || ''}`;
+
+  // Nombres
+  const parts = (c.coupleName || '').split('&').map(s => s.trim());
+  if (parts.length === 2) {
+    document.getElementById('couple-name-display').innerHTML =
+      `${esc(parts[0])}<span class="amp">&</span>${esc(parts[1])}`;
+  }
+
+  // Fecha y hora
+  const wd = new Date(c.weddingDate);
+  const dateStr = wd.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const timeStr = wd.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('info-date').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+  document.getElementById('info-time').textContent = timeStr;
+
+  // Venue
+  document.getElementById('info-venue').innerHTML =
+    `${esc(c.venue)}<br><span style="font-size:.92rem;color:#8a9ba3;">${esc(c.venueAddress)}</span>`;
+
+  // Maps links
+  document.getElementById('maps-btn').href = c.mapsUrl || '#';
+  document.getElementById('maps-btn-2').href = c.mapsUrl || '#';
+
+  // WhatsApp
+  const waMsg = encodeURIComponent(c.whatsappMessage || '');
+  const waUrl = `https://wa.me/${c.whatsapp}?text=${waMsg}`;
+  document.getElementById('wa-action-btn').href = waUrl;
+  document.getElementById('wa-rsvp-btn').href = waUrl;
+
+  // Footer fechas
+  const shortDate = `${String(wd.getDate()).padStart(2,'0')} · ${String(wd.getMonth()+1).padStart(2,'0')} · ${wd.getFullYear()}`;
+  document.getElementById('footer-date').textContent = shortDate;
+  document.getElementById('footer-city').textContent = c.venueAddress || '';
+  document.getElementById('footer-verse').innerHTML = c.bibleVerse || '';
+  document.getElementById('rsvp-footer-date').textContent = shortDate;
+  document.getElementById('rsvp-footer-names').textContent = c.coupleName || '';
+  document.getElementById('gb-footer-date').textContent = shortDate;
+  document.getElementById('gb-footer-names').textContent = `Con amor, ${c.coupleName || ''}`;
+  document.getElementById('gb-footer-verse').innerHTML = c.guestbookVerse || '';
+  document.getElementById('album-footer-names').textContent = `Boda ${c.coupleName || ''}`;
+  document.getElementById('album-footer-city').textContent = c.venueAddress || '';
+  document.getElementById('admin-subtitle').textContent = `${c.coupleName || ''} — ${dateStr}`;
+
+  // RSVP deadline
+  if (c.rsvpDeadline)
+    document.getElementById('rsvp-deadline-text').textContent = `Por favor confirma antes del ${c.rsvpDeadline}`;
+
+  // Itinerary
+  const tl = document.getElementById('timeline');
+  (c.itinerary || []).forEach(item => {
+    const d = document.createElement('div'); d.className = 'tl-item';
+    d.innerHTML = `<div class="tl-dot"></div><div class="tl-time">${esc(item.time)}</div><div class="tl-title">${esc(item.title)}</div><div class="tl-desc">${esc(item.desc)}</div>`;
+    tl.appendChild(d);
+  });
+
+  // Dress code
+  const dg = document.getElementById('dress-grid');
+  (c.dressCode || []).forEach(sw => {
+    const d = document.createElement('div'); d.className = 'swatch-wrap';
+    d.innerHTML = `<div class="swatch" style="background:${sw.color};"></div><div class="swatch-name">${esc(sw.name)}</div>`;
+    dg.appendChild(d);
+  });
+  document.getElementById('dress-note').textContent = c.dressNote || '';
+
+  // Gallery (photos/config.json)
+  const gg = document.getElementById('gallery-grid');
+  if (photoFiles.length === 0) {
+    gg.innerHTML = '<div class="gallery-empty">Agrega fotos en photos/config.json 💙</div>';
+  } else {
+    photoFiles.forEach(file => {
+      const d = document.createElement('div'); d.className = 'gallery-item';
+      d.innerHTML = `<img src="photos/${esc(file)}" alt="" loading="lazy">`;
+      d.onclick = () => openLightbox(`photos/${file}`);
+      gg.appendChild(d);
+    });
+  }
+}
+
+// ── MUSIC ─────────────────────────────────────────────────
+function setupMusicAutoplay() {
+  const tryPlay = () => {
+    if (!musicStarted) {
+      playTrack(0);
+      document.removeEventListener('touchstart', tryPlay);
+      document.removeEventListener('click', tryPlay);
+    }
+  };
+  document.addEventListener('touchstart', tryPlay, { once: true });
+  document.addEventListener('click', tryPlay, { once: true });
+}
+
+function playTrack(idx) {
+  if (!musicFiles.length) return;
+  audio.src = musicFiles[idx];
+  audio.play().then(() => {
+    musicStarted = true;
+    document.getElementById('music-btn').classList.add('playing');
+    document.getElementById('music-icon-play').style.display = 'none';
+    document.getElementById('music-icon-pause').style.display = 'block';
+  }).catch(() => {});
+}
+
+function toggleMusic() {
+  if (audio.paused) {
+    if (!musicStarted) playTrack(musicIndex);
+    else audio.play();
+    document.getElementById('music-btn').classList.add('playing');
+    document.getElementById('music-icon-play').style.display = 'none';
+    document.getElementById('music-icon-pause').style.display = 'block';
+    musicStarted = true;
+  } else {
+    audio.pause();
+    document.getElementById('music-btn').classList.remove('playing');
+    document.getElementById('music-icon-play').style.display = 'block';
+    document.getElementById('music-icon-pause').style.display = 'none';
+  }
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────
+function initCountdown() {
+  const target = new Date(CFG.weddingDate || '2025-05-23T19:00:00');
+  function tick() {
+    const diff = target - new Date();
+    if (diff <= 0) { document.querySelectorAll('.cd-num').forEach(e => e.textContent = '0'); return; }
+    document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// ── CALENDAR ──────────────────────────────────────────────
+function addToCalendar(e) {
+  e.preventDefault();
+  const wd = new Date(CFG.weddingDate);
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0];
+  const end = new Date(wd.getTime() + 6*3600000);
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Boda '+CFG.coupleName)}&dates=${fmt(wd)}/${fmt(end)}&location=${encodeURIComponent(CFG.venueAddress||'')}`;
+  window.open(url, '_blank');
+}
+
+// ── ADMIN TAB ─────────────────────────────────────────────
+function checkAdminParam() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('admin') === CFG.adminPass) {
+    const btn = document.createElement('button');
+    btn.className = 'nav-tab admin-tab'; btn.textContent = '✦ Novios';
+    btn.onclick = () => showView('admin');
+    document.getElementById('nav-tabs').appendChild(btn);
+    loadAdminData();
+  }
+}
+
+// ── PARTICLES ─────────────────────────────────────────────
 (function(){
-  const c=document.getElementById('particles');
-  const cols=['#aecbd6','#7aafc2','#b0bec5','#d8eaf0','#c9b07a'];
+  const c = document.getElementById('particles');
+  const cols = ['#aecbd6','#7aafc2','#b0bec5','#d8eaf0','#c9b07a'];
   for(let i=0;i<28;i++){const p=document.createElement('div');p.className='petal';p.style.cssText=`left:${Math.random()*100}%;width:${4+Math.random()*6}px;height:${4+Math.random()*6}px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${6+Math.random()*10}s;animation-delay:${Math.random()*8}s;`;c.appendChild(p);}
 })();
 
-// Admin tab
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('admin')===ADMIN_PASS){
-    const btn=document.createElement('button');btn.className='nav-tab admin-tab';btn.textContent='✦ Novios';btn.onclick=()=>showView('admin');
-    document.getElementById('nav-tabs').appendChild(btn);loadAdminData();
-  }
-})();
-
-// Countdown
-function updateCountdown(){
-  const now=new Date();const diff=WEDDING_DATE-now;
-  if(diff<=0){document.querySelectorAll('.cd-num').forEach(el=>el.textContent='¡Hoy!');return;}
-  const d=Math.floor(diff/86400000);
-  const h=Math.floor((diff%86400000)/3600000);
-  const m=Math.floor((diff%3600000)/60000);
-  const s=Math.floor((diff%60000)/1000);
-  document.getElementById('cd-days').textContent=String(d).padStart(2,'0');
-  document.getElementById('cd-hours').textContent=String(h).padStart(2,'0');
-  document.getElementById('cd-mins').textContent=String(m).padStart(2,'0');
-  document.getElementById('cd-secs').textContent=String(s).padStart(2,'0');
-}
-updateCountdown();setInterval(updateCountdown,1000);
-
-// Add to calendar
-function addToCalendar(e){
-  e.preventDefault();
-  const start='20250523T190000';
-  const end='20250524T010000';
-  const title='Boda+de+Neily+%26+Marco';
-  const loc='Parroquia+Ntra.+Sra.+del+Rosario,+Pino+Suárez+47,+Tlaquepaque,+Jalisco';
-  const desc='Ceremonia+religiosa+a+las+7:00+PM';
-  const url=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${desc}&location=${loc}`;
-  window.open(url,'_blank');
+// ── VIEW SWITCHER ─────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const view = document.getElementById('view-'+id);
+  view.classList.add('active');
+  const card = view.querySelector('.card');
+  card.classList.remove('animate-in'); void card.offsetWidth; card.classList.add('animate-in');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const map = { invitation:0, rsvp:1, guestbook:2, album:3, admin:tabs.length-1 };
+  if (map[id] !== undefined) tabs[map[id]].classList.add('active');
+  if (id === 'rsvp') loadRsvpCount();
+  if (id === 'guestbook') loadWishes();
+  if (id === 'album') loadAlbum();
 }
 
-// Gallery lightbox
-function openLightbox(src){
-  document.getElementById('lightbox-img').src=src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
-
-// View switcher
-function showView(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  const view=document.getElementById('view-'+id);view.classList.add('active');
-  const card=view.querySelector('.card');card.classList.remove('animate-in');void card.offsetWidth;card.classList.add('animate-in');
-  const tabs=document.querySelectorAll('.nav-tab');
-  const map={invitation:0,rsvp:1,guestbook:2,admin:tabs.length-1};
-  if(map[id]!==undefined)tabs[map[id]].classList.add('active');
-  if(id==='rsvp')loadRsvpCount();
-  if(id==='guestbook')loadWishes();
-}
-
+// ── HELPERS ───────────────────────────────────────────────
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function configured(){return SCRIPT_URL&&SCRIPT_URL!=='PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function configured(){return CFG.scriptUrl && CFG.scriptUrl !== 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';}
+function openLightbox(src){document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
 
 async function api(data){
   if(!configured())return null;
-  try{const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}
+  try{const r=await fetch(CFG.scriptUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}
 }
 
-// ── RSVP ──
-let attendChoice=null;const localRsvp=[];
+// ── RSVP ──────────────────────────────────────────────────
+let attendChoice=null; const localRsvp=[];
 function selectAttend(v){attendChoice=v;document.getElementById('btn-yes').className='attend-btn'+(v==='yes'?' selected-yes':'');document.getElementById('btn-no').className='attend-btn'+(v==='no'?' selected-no':'');}
-
 async function loadRsvpCount(){
   if(!configured()){document.getElementById('rsvp-count').textContent='?';return;}
   const r=await api({action:'getRsvpCount'});
   if(r&&r.count!==undefined){document.getElementById('rsvp-count').textContent=r.count;if(r.recent&&r.recent.length)renderRsvpList(r.recent);}
 }
-
 function renderRsvpList(items){
-  const list=document.getElementById('rsvp-list');const cont=document.getElementById('rsvp-items');
+  const list=document.getElementById('rsvp-list'),cont=document.getElementById('rsvp-items');
   list.style.display='block';cont.innerHTML='';
   items.forEach(r=>{const d=document.createElement('div');d.className='rsvp-item';const gl=r.guests==0?'Solo':`+${r.guests}`;d.innerHTML=`<div><div class="rsvp-item-name">${esc(r.name)}</div><div class="rsvp-item-guests">${gl}</div></div><span class="rsvp-badge ${r.attend}">${r.attend==='yes'?'Asistirá':'No asistirá'}</span>`;cont.appendChild(d);});
 }
-
 async function submitRsvp(){
-  const name=document.getElementById('rsvp-name').value.trim();
-  const guests=document.getElementById('rsvp-guests').value;
-  if(!name){toast('Por favor escribe tu nombre ✏️');return;}
-  if(!attendChoice){toast('Indica si asistirás o no');return;}
+  const name=document.getElementById('rsvp-name').value.trim(),guests=document.getElementById('rsvp-guests').value;
+  if(!name){toast('Por favor escribe tu nombre ✏️');return;}if(!attendChoice){toast('Indica si asistirás o no');return;}
   const btn=document.getElementById('rsvp-submit');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Enviando…';
   const entry={name,guests,attend:attendChoice,date:new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})};
-  if(configured()){const r=await api({action:'addRsvp',...entry});if(!r){toast('Error al guardar. Intenta de nuevo.');btn.disabled=false;btn.textContent='Confirmar Asistencia';return;}document.getElementById('rsvp-count').textContent=r.count||'—';if(r.recent)renderRsvpList(r.recent);}
+  if(configured()){const r=await api({action:'addRsvp',...entry});if(!r){toast('Error al guardar.');btn.disabled=false;btn.textContent='Confirmar Asistencia';return;}document.getElementById('rsvp-count').textContent=r.count||'—';if(r.recent)renderRsvpList(r.recent);}
   else{localRsvp.unshift(entry);document.getElementById('rsvp-count').textContent=localRsvp.length;renderRsvpList(localRsvp.slice(0,5));}
   btn.disabled=false;btn.textContent='Confirmar Asistencia';
   document.getElementById('rsvp-name').value='';document.getElementById('rsvp-guests').value='0';
@@ -529,35 +719,73 @@ async function submitRsvp(){
   toast(a==='yes'?'¡Qué alegría que vendrás! 🎊':'Tu respuesta fue registrada 💙');
 }
 
-// ── GUESTBOOK ──
+// ── GUESTBOOK ─────────────────────────────────────────────
 const localWishes=[];
 async function loadWishes(){if(!configured()){renderWishes(localWishes);return;}const r=await api({action:'getWishes'});if(r&&r.wishes)renderWishes(r.wishes);}
-
 function renderWishes(items){
-  const empty=document.getElementById('wishes-empty');const list=document.getElementById('wishes-list');
+  const empty=document.getElementById('wishes-empty'),list=document.getElementById('wishes-list');
   if(!items.length){empty.style.display='block';list.innerHTML='';return;}
   empty.style.display='none';list.innerHTML='';
   items.forEach(w=>{const d=document.createElement('div');d.className='wish-card';d.innerHTML=`<div class="wish-author">${esc(w.name)}</div><div class="wish-text">"${esc(w.text)}"</div><div class="wish-date">${w.date||''}</div><span class="wish-heart" onclick="this.innerHTML='♥';this.style.color='var(--sky-deep)'">♡</span>`;list.appendChild(d);});
 }
-
 async function submitWish(){
-  const name=document.getElementById('wish-name').value.trim();const text=document.getElementById('wish-text').value.trim();
-  if(!name){toast('Por favor escribe tu nombre ✏️');return;}if(!text){toast('Escribe tu mensaje para los novios 💌');return;}
+  const name=document.getElementById('wish-name').value.trim(),text=document.getElementById('wish-text').value.trim();
+  if(!name){toast('Por favor escribe tu nombre ✏️');return;}if(!text){toast('Escribe tu mensaje 💌');return;}
   const btn=document.getElementById('wish-submit');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Enviando…';
   const entry={name,text,date:new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long'})};
-  if(configured()){const r=await api({action:'addWish',...entry});if(!r){toast('Error al guardar. Intenta de nuevo.');btn.disabled=false;btn.innerHTML='✦ &nbsp; Enviar Deseo';return;}if(r.wishes)renderWishes(r.wishes);}
+  if(configured()){const r=await api({action:'addWish',...entry});if(!r){toast('Error al guardar.');btn.disabled=false;btn.innerHTML='✦ &nbsp; Enviar Deseo';return;}if(r.wishes)renderWishes(r.wishes);}
   else{localWishes.unshift(entry);renderWishes(localWishes);}
   btn.disabled=false;btn.innerHTML='✦ &nbsp; Enviar Deseo';
   document.getElementById('wish-name').value='';document.getElementById('wish-text').value='';
   toast('¡Tu deseo fue enviado con amor! 💙');
 }
 
-// ── ADMIN ──
+// ── ALBUM ─────────────────────────────────────────────────
+let pendingFiles=[];
+function previewFiles(input){
+  pendingFiles=Array.from(input.files);
+  const preview=document.getElementById('album-preview');preview.innerHTML='';
+  pendingFiles.forEach((f,i)=>{const reader=new FileReader();reader.onload=e=>{const div=document.createElement('div');div.className='album-preview-item';div.innerHTML=`<img src="${e.target.result}" alt=""><button class="album-preview-remove" onclick="removeFile(${i})">✕</button>`;preview.appendChild(div);};reader.readAsDataURL(f);});
+}
+function removeFile(i){pendingFiles.splice(i,1);const dt=new DataTransfer();pendingFiles.forEach(f=>dt.items.add(f));document.getElementById('album-files').files=dt.files;previewFiles({files:pendingFiles});}
+function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
+async function submitAlbum(){
+  const name=document.getElementById('album-name').value.trim();
+  if(!name){toast('Por favor escribe tu nombre ✏️');return;}if(!pendingFiles.length){toast('Selecciona al menos una foto 📸');return;}
+  const btn=document.getElementById('album-submit');btn.disabled=true;
+  const progress=document.getElementById('album-progress'),bar=document.getElementById('album-progress-bar'),status=document.getElementById('album-status');
+  progress.style.display='block';
+  const date=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long'});
+  let uploaded=0;
+  for(let i=0;i<pendingFiles.length;i++){
+    const f=pendingFiles[i];status.textContent=`Subiendo foto ${i+1} de ${pendingFiles.length}…`;bar.style.width=`${(i/pendingFiles.length)*100}%`;
+    if(configured()){try{const b64=await toBase64(f);await api({action:'uploadPhoto',name,date,filename:f.name,mimeType:f.type,data:b64,folderId:CFG.driveFolder});uploaded++;}catch(e){}}
+    else{localPhotos.unshift({name,date,url:URL.createObjectURL(f),filename:f.name});uploaded++;}
+  }
+  bar.style.width='100%';status.textContent=`✓ ${uploaded} foto${uploaded!==1?'s':''} subida${uploaded!==1?'s':''} con éxito`;
+  setTimeout(()=>{progress.style.display='none';status.textContent='';},3000);
+  pendingFiles=[];document.getElementById('album-preview').innerHTML='';document.getElementById('album-files').value='';
+  btn.disabled=false;btn.innerHTML='📤 &nbsp; Subir fotos al álbum';
+  toast('¡Fotos compartidas con los novios! 📸');loadAlbum();
+}
+const localPhotos=[];
+async function loadAlbum(){
+  if(!configured()){renderAlbum(localPhotos);return;}
+  const r=await api({action:'getPhotos',folderId:CFG.driveFolder});if(r&&r.photos)renderAlbum(r.photos);
+}
+function renderAlbum(photos){
+  const empty=document.getElementById('album-empty'),grid=document.getElementById('album-grid'),label=document.getElementById('album-gallery-label');
+  if(!photos||!photos.length){empty.style.display='block';grid.innerHTML='';label.style.display='none';return;}
+  empty.style.display='none';label.style.display='block';grid.innerHTML='';
+  photos.forEach(p=>{const d=document.createElement('div');d.className='album-grid-item';d.innerHTML=`<img src="${p.thumbnailUrl||p.url||''}" alt="" loading="lazy">`;d.onclick=()=>openLightbox(p.url||p.thumbnailUrl||'');grid.appendChild(d);});
+}
+
+// ── ADMIN ─────────────────────────────────────────────────
 async function loadAdminData(){
   if(!configured()){document.getElementById('admin-config-notice').style.display='block';return;}
   document.getElementById('admin-config-notice').style.display='none';
-  const r=await api({action:'getAll'});if(!r)return;
-  const rsvps=r.rsvps||[],wishes=r.wishes||[];
+  const r=await api({action:'getAll',folderId:CFG.driveFolder});if(!r)return;
+  const rsvps=r.rsvps||[],wishes=r.wishes||[],photos=r.photos||[];
   const yes=rsvps.filter(x=>x.attend==='yes');
   const people=yes.reduce((s,x)=>s+parseInt(x.guests||0)+1,0);
   document.getElementById('admin-total').textContent=rsvps.length;
@@ -569,7 +797,13 @@ async function loadAdminData(){
   const wl=document.getElementById('admin-wishes-list');
   wl.innerHTML=wishes.length?'':'<div class="empty-state" style="padding:1rem 0;"><div class="empty-state-text">Sin mensajes aún</div></div>';
   wishes.forEach(w=>{const d=document.createElement('div');d.className='admin-wish-row';d.innerHTML=`<div class="admin-wish-author">${esc(w.name)}</div><div class="admin-wish-text">"${esc(w.text)}"</div><div class="admin-wish-date">${w.date||''}</div>`;wl.appendChild(d);});
+  const pl=document.getElementById('admin-photos-list');
+  pl.innerHTML=photos.length?'':'<div class="empty-state" style="padding:1rem 0;"><div class="empty-state-text">Sin fotos aún</div></div>';
+  if(photos.length){const g=document.createElement('div');g.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:.5rem;';photos.forEach(p=>{const d=document.createElement('div');d.style.cssText='aspect-ratio:1;overflow:hidden;border-radius:1px;cursor:pointer;';d.innerHTML=`<img src="${p.thumbnailUrl||p.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;d.onclick=()=>openLightbox(p.url);g.appendChild(d);});pl.appendChild(g);const n=document.createElement('div');n.style.cssText='font-family:Cormorant Garamond,serif;font-style:italic;font-size:.82rem;color:#8a9ba3;text-align:center;margin-top:.6rem;';n.textContent=`${photos.length} foto${photos.length!==1?'s':''} en el álbum`;pl.appendChild(n);}
 }
+
+// ── START ─────────────────────────────────────────────────
+boot();
 </script>
 </body>
 </html>
