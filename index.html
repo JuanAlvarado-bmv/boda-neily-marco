@@ -1078,7 +1078,7 @@ async function boot() {
   hideLoading();
 }
 
-function hideLoading() {
+async function hideLoading() {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('main-page').style.display = 'flex';
   if (musicFiles.length > 0) {
@@ -1091,7 +1091,7 @@ function hideLoading() {
     setupMusicAutoplay();
   }
   initCountdown();
-  checkAdminParam();
+  await checkAdminParam();
   loadTheme();
   buildThemeGrid();
 }
@@ -1234,14 +1234,25 @@ function addToCalendar(e) {
 }
 
 // ══════════════════════════════════════════════
-//  ADMIN
+//  ADMIN — hash-based auth
 // ══════════════════════════════════════════════
-function checkAdminParam() {
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('admin')===CFG.adminPass) {
-    const btn=document.createElement('button');
-    btn.className='nav-tab admin-tab'; btn.textContent='✦ Novios';
-    btn.onclick=()=>showView('admin');
+async function hashString(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkAdminParam() {
+  const p = new URLSearchParams(window.location.search);
+  const candidate = p.get('admin');
+  if (!candidate) return;
+
+  const candidateHash = await hashString(candidate);
+  const expectedHash = await hashString(CFG.adminPass || '');
+
+  if (candidateHash === expectedHash) {
+    const btn = document.createElement('button');
+    btn.className = 'nav-tab admin-tab'; btn.textContent = '✦ Novios';
+    btn.onclick = () => showView('admin');
     document.getElementById('nav-tabs').appendChild(btn);
     loadAdminData();
   }
@@ -1289,11 +1300,16 @@ async function api(data){
   if(!configured()) return null;
   try{
     console.log('[API] acción:', data.action);
-    const r=await fetch(CFG.scriptUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});
+    // Adjuntar token secreto en cada petición
+    const payload = { ...data, token: CFG.scriptToken };
+    const r=await fetch(CFG.scriptUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     const text=await r.text();
     if(text.trim().startsWith('<')) throw new Error('HTML response — verifica permisos');
-    return JSON.parse(text);
+    const json = JSON.parse(text);
+    if(json.error === 'No autorizado') { console.error('[API] Token inválido'); return null; }
+    if(json.error === 'Demasiadas peticiones. Intenta más tarde.') { toast('Demasiadas peticiones. Espera un momento.'); return null; }
+    return json;
   }catch(e){ console.error('[API] error:',e.message); return null; }
 }
 
